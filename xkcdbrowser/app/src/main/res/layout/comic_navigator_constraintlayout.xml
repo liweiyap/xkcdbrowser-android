@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout
+    android:id="@+id/comicNavigatorConstraintLayout"
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <ImageButton
+        android:id="@+id/leftArrowImageButton"
+        android:layout_width="0dp"
+        android:layout_height="match_parent"
+        android:src="@drawable/ic_baseline_keyboard_arrow_left_24"
+        android:background="@color/white"
+        android:foreground="?attr/selectableItemBackgroundBorderless"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toLeftOf="@id/comicNumberButton"
+        app:layout_constraintHorizontal_weight="2"
+        android:adjustViewBounds="true"
+        android:padding="0dp"
+        android:scaleType="fitCenter"
+        android:enabled="false"
+        android:contentDescription="@string/leftArrowImageButton_contentDescription" />
+
+    <Button
+        android:id="@+id/comicNumberButton"
+        android:layout_width="0dp"
+        android:layout_height="match_parent"
+        android:gravity="center"
+        android:textSize="25sp"
+        android:textStyle="bold"
+        android:backgroundTint="@color/black"
+        android:enabled="false"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintLeft_toRightOf="@id/leftArrowImageButton"
+        app:layout_constraintRight_toLeftOf="@id/rightArrowImageButton"
+        app:layout_constraintHorizontal_weight="6"/>
+
+    <ImageButton
+        android:id="@+id/rightArrowImageButton"
+        android:layout_width="0dp"
+        android:layout_height="match_parent"
+        android:src="@drawable/ic_baseline_keyboard_arrow_right_24"
+        android:background="@color/white"
+        android:foreground="?attr/selectableItemBackgroundBorderless"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintLeft_toRightOf="@id/comicNumberButton"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintHorizontal_weight="2"
+        android:adjustViewBounds="true"
+        android:padding="0dp"
+        android:scaleType="fitCenter"
+        android:enabled="false"
+        android:contentDescription="@string/rightArrowImageButton_contentDescription" />
+
+</androidx.constraintlayout.widget.ConstraintLayout>

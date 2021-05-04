@@ -1,0 +1,12 @@
+<resources>
+    <string name="app_name">XKCD Browser</string>
+
+    <string name="refreshMaterialButton_text">Error loading comic.</string>
+    <string name="comicSelectorDialog_title">Enter comic strip number to navigate to.</string>
+    <string name="okButton_text">OK</string>
+
+    <string name="leftArrowImageButton_contentDescription">Go to previous comic strip.</string>
+    <string name="rightArrowImageButton_contentDescription">Go to next comic strip.</string>
+    <string name="photoGalleryImageButton_contentDescription">Save currently displayed comic strip as Favourite in Photo Gallery.</string>
+    <string name="newestComicImageButton_contentDescription">Return to newest comic strip.</string>
+</resources>

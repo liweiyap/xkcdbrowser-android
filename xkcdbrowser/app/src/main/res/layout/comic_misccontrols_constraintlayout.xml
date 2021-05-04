@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout
+    android:id="@+id/comicMiscControlsConstraintLayout"
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <Space
+        android:id="@+id/space0"
+        android:layout_width="0dp"
+        android:layout_height="match_parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toLeftOf="@id/photoGalleryImageButton"
+        app:layout_constraintHorizontal_weight="1" />
+
+    <ImageButton
+        android:id="@+id/photoGalleryImageButton"
+        android:layout_width="0dp"
+        android:layout_height="match_parent"
+        android:src="@drawable/ic_gallery"
+        android:background="@color/white"
+        android:foreground="?attr/selectableItemBackgroundBorderless"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintLeft_toRightOf="@id/space0"
+        app:layout_constraintRight_toLeftOf="@id/newestComicImageButton"
+        app:layout_constraintHorizontal_weight="3"
+        android:adjustViewBounds="true"
+        android:padding="10dp"
+        android:scaleType="fitCenter"
+        android:enabled="false"
+        android:alpha="0.5"
+        android:contentDescription="@string/photoGalleryImageButton_contentDescription" />
+
+    <ImageButton
+        android:id="@+id/newestComicImageButton"
+        android:layout_width="0dp"
+        android:layout_height="match_parent"
+        android:src="@drawable/ic_clock"
+        android:background="@color/white"
+        android:foreground="?attr/selectableItemBackgroundBorderless"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintLeft_toRightOf="@id/photoGalleryImageButton"
+        app:layout_constraintRight_toLeftOf="@id/space1"
+        app:layout_constraintHorizontal_weight="3"
+        android:adjustViewBounds="true"
+        android:padding="10dp"
+        android:scaleType="fitCenter"
+        android:enabled="false"
+        android:alpha="0.5"
+        android:contentDescription="@string/newestComicImageButton_contentDescription" />
+
+    <Space
+        android:id="@+id/space1"
+        android:layout_width="0dp"
+        android:layout_height="match_parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintLeft_toRightOf="@id/newestComicImageButton"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintHorizontal_weight="1" />
+
+</androidx.constraintlayout.widget.ConstraintLayout>
