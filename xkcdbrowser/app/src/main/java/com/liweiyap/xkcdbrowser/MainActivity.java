@@ -47,7 +47,7 @@ public class MainActivity extends AppCompatActivity
         mRefreshMaterialButton = findViewById(R.id.refreshMaterialButton);
         mPhotoGalleryImageButton = findViewById(R.id.photoGalleryImageButton);
         mNewestComicImageButton = findViewById(R.id.newestComicImageButton);
-        
+
         mJsonObjectRequestQueue = new JsonObjectRequestQueue(this);
 
         // ====================================================================
@@ -148,27 +148,27 @@ public class MainActivity extends AppCompatActivity
                 ActivityCompat.requestPermissions(this, PERMISSIONS,112);
             }
 
-                String imageURL = MediaStore.Images.Media.insertImage(
-                    getContentResolver(),
-                    ((BitmapDrawable) mComicPhotoView.getDrawable()).getBitmap(),
-                    mComicTitleTextView.getText().toString(),
-                    mComicAltText);
+            String imageURL = MediaStore.Images.Media.insertImage(
+                getContentResolver(),
+                ((BitmapDrawable) mComicPhotoView.getDrawable()).getBitmap(),
+                mComicTitleTextView.getText().toString(),
+                mComicAltText);
 
-                try
+            try
+            {
+                if (imageURL == null)
                 {
-                    if (imageURL == null)
-                    {
-                        throw new Exception("Failed to save image");
-                    }
-                    else
-                    {
-                        showNewToast("Image saved to Photo Gallery.");
-                    }
+                    throw new Exception("Failed to save image");
                 }
-                catch (Exception e)
+                else
                 {
-                    e.printStackTrace();
+                    showNewToast("Image saved to Photo Gallery.");
                 }
+            }
+            catch (Exception e)
+            {
+                e.printStackTrace();
+            }
         });
 
         // ====================================================================
@@ -202,6 +202,11 @@ public class MainActivity extends AppCompatActivity
         updateComicAndMetaData(String.format(Locale.ENGLISH, mGeneralComicURLStringPattern, comicNum));
     }
 
+    /**
+     * Called from onCreate(), navigateToNewComic(), and refreshMaterialButton::onClick().
+     * Although at the start of this function, we handle the edge case of the argument urlString being a NULL String,
+     * do note that this edge case is already handled by the above functions, and hence, urlString should never be a NULL String.
+     */
     private void updateComicAndMetaData(final String urlString)
     {
         if (urlString == null)
@@ -209,14 +214,40 @@ public class MainActivity extends AppCompatActivity
             return;
         }
 
+        mLastRequestedURLString = urlString;
+
         // display placeholder
         mViewGroupAccessibilityManager.setChildVisibility(findViewById(R.id.mainDisplayRelativeLayout), View.GONE);
         mLoadingProgressBar.setVisibility(View.VISIBLE);
 
+        // From the documentation (https://developer.android.com/training/volley/simple#send):
+        // When you call add(), Volley runs one cache processing thread and a pool of network dispatch threads.
+        // When you add a request to the queue, it is picked up by the cache thread and triaged:
+        // if the request can be serviced from cache, the cached response is parsed on the cache thread
+        // and the parsed response is delivered on the main thread. If the request cannot be serviced from cache,
+        // it is placed on the network queue. The first available network thread takes the request from the queue,
+        // performs the HTTP transaction, parses the response on the worker thread, writes the response to cache,
+        // and posts the parsed response back to the main thread for delivery.
+        // Note that expensive operations like blocking I/O and parsing/decoding are done on worker threads.
+        // You can add a request from any thread, but responses are always delivered on the main thread.
+        //
+        // So Volley already uses background threads. Thus, perhaps no need to use Executor like in this example?
+        // https://developer.android.com/guide/background/threading#java
+        // But to handle race condition if user clicks too fast on leftArrowImageButton, rightArrowImageButton, or newestComicImageButton,
+        // we declare a mLastRequestedURLString variable.
+        // The race condition occurs in the first place because Volley network calls are asynchronous in nature,
+        // (https://stackoverflow.com/questions/35362167/avoid-getting-race-condition-in-android-volley-in-android-app)
+        // so if user clicks too fast and multiple requests are sent over a very short period of time,
+        // then we have no control over which request will get completed first.
         mJsonObjectRequestQueue.enqueueJSONObjectRequest(urlString, new JsonObjectRequestCallback() {
             @SuppressLint("SetTextI18n")
             @Override
             public void onComplete(final JsonDataModel jsonDataModel, final String urlString) {
+                if ( (mLastRequestedURLString != null) && (!urlString.equals(mLastRequestedURLString)) )
+                {
+                    return;
+                }
+
                 if (jsonDataModel == null)
                 {
                     mViewGroupAccessibilityManager.setChildVisibility(findViewById(R.id.mainDisplayRelativeLayout), View.GONE);
@@ -346,4 +377,5 @@ public class MainActivity extends AppCompatActivity
 
     private final ViewGroupAccessibilityManager mViewGroupAccessibilityManager = new ViewGroupAccessibilityManager();
     private JsonObjectRequestQueue mJsonObjectRequestQueue;
+    private String mLastRequestedURLString;
 }
