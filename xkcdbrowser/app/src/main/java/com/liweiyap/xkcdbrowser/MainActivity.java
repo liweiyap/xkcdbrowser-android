@@ -1,7 +1,6 @@
 package com.liweiyap.xkcdbrowser;
 
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.core.app.ActivityCompat;
 
 import android.annotation.SuppressLint;
@@ -17,7 +16,6 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.ProgressBar;
-import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -29,6 +27,7 @@ import com.android.volley.toolbox.JsonObjectRequest;
 import com.android.volley.toolbox.Volley;
 import com.github.chrisbanes.photoview.PhotoView;
 import com.google.android.material.button.MaterialButton;
+import com.liweiyap.xkcdbrowser.ui.ViewGroupAccessibilityManager;
 import com.squareup.picasso.Picasso;
 
 import org.json.JSONException;
@@ -158,35 +157,6 @@ public class MainActivity extends AppCompatActivity
                 ActivityCompat.requestPermissions(this, PERMISSIONS,112);
             }
 
-            // TODO: MediaStore.Images.Media.insertImage() is deprecated from API 28, but in the alternative code, the saved image is deleted as soon as the OutputStream is closed.
-//            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q)
-//            {
-//                ContentResolver contentResolver = getContentResolver();
-//                ContentValues contentValues = new ContentValues();
-//                contentValues.put(MediaStore.Images.Media.RELATIVE_PATH, Environment.DIRECTORY_PICTURES);
-////                contentValues.put(MediaStore.Images.Media.IS_PENDING, true);
-//                contentValues.put(MediaStore.Images.Media.DISPLAY_NAME, mComicTitleTextView.getText().toString());
-//                contentValues.put(MediaStore.Images.Media.MIME_TYPE, "image/jpg");
-//
-//                Uri imageUri = contentResolver.insert(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, contentValues);
-//                Bitmap bitmap = ((BitmapDrawable) mComicPhotoView.getDrawable()).getBitmap();
-//                try {
-//                    OutputStream fos = contentResolver.openOutputStream(imageUri);
-//                    bitmap.compress(Bitmap.CompressFormat.JPEG, 100, fos);
-////                    fos.flush();
-//
-////                    contentValues.put(MediaStore.MediaColumns.IS_PENDING, false);
-////                    contentValues.clear();
-//                    contentResolver.update(imageUri, contentValues, null, null);
-//
-//                    fos.close();
-//                } catch (IOException e) {
-//                    e.printStackTrace();
-//                }
-//
-//            }
-//            else
-//            {
                 String imageURL = MediaStore.Images.Media.insertImage(
                     getContentResolver(),
                     ((BitmapDrawable) mComicPhotoView.getDrawable()).getBitmap(),
@@ -208,7 +178,6 @@ public class MainActivity extends AppCompatActivity
                 {
                     e.printStackTrace();
                 }
-//            }
         });
 
         // ====================================================================
@@ -216,8 +185,8 @@ public class MainActivity extends AppCompatActivity
         // Elements will be automatically re-enabled as soon as the newest comic can be retrieved.
         // ====================================================================
 
-        disableComicNavigator();
-        disableComicMiscControls();
+        mViewGroupAccessibilityManager.setChildEnabledState(findViewById(R.id.comicNavigatorConstraintLayout), false);
+        mViewGroupAccessibilityManager.setChildEnabledState(findViewById(R.id.comicMiscControlsConstraintLayout), false, 0.5f);
 
         enqueueJSONObjectRequest(mNewestComicURLString);
     }
@@ -274,7 +243,7 @@ public class MainActivity extends AppCompatActivity
         }
 
         // display placeholder
-        hideAllViewsInMainDisplay();
+        mViewGroupAccessibilityManager.setChildVisibility(findViewById(R.id.mainDisplayRelativeLayout), View.GONE);
         mLoadingProgressBar.setVisibility(View.VISIBLE);
 
         JsonObjectRequest jsonObjectRequest = new JsonObjectRequest(
@@ -291,8 +260,8 @@ public class MainActivity extends AppCompatActivity
 
                         // navigator buttons are initially disabled
                         // enable them only after the newest comic strip has been displayed for the first time
-                        enableComicNavigator();
-                        enableComicMiscControls();
+                        mViewGroupAccessibilityManager.setChildEnabledState(findViewById(R.id.comicNavigatorConstraintLayout), true);
+                        mViewGroupAccessibilityManager.setChildEnabledState(findViewById(R.id.comicMiscControlsConstraintLayout), true, 1f);
 
                         return;
                     }
@@ -304,7 +273,7 @@ public class MainActivity extends AppCompatActivity
             new Response.ErrorListener() {
                 @Override
                 public void onErrorResponse(VolleyError error) {
-                    hideAllViewsInMainDisplay();
+                    mViewGroupAccessibilityManager.setChildVisibility(findViewById(R.id.mainDisplayRelativeLayout), View.GONE);
                     mRefreshMaterialButton.setVisibility(View.VISIBLE);
                     mComicPhotoView.setImageResource(0);
                     mComicPhotoView.setOnLongClickListener(null);
@@ -315,86 +284,6 @@ public class MainActivity extends AppCompatActivity
             });
 
         mRequestQueue.add(jsonObjectRequest);
-    }
-
-    /**
-     * Objects in main display (see: res/maindisplay_relativelayout.xml) include:
-     *  - loadingProgressBar
-     *  - comicPhotoView
-     *  - refreshMaterialButton
-     */
-    private void hideAllViewsInMainDisplay()
-    {
-        RelativeLayout mainDisplayRelativeLayout = findViewById(R.id.mainDisplayRelativeLayout);
-        for (int childIdx = 0; childIdx < mainDisplayRelativeLayout.getChildCount(); ++childIdx)
-        {
-            View child = mainDisplayRelativeLayout.getChildAt(childIdx);
-            child.setVisibility(View.GONE);
-        }
-    }
-
-    /**
-     * Objects in navigator display (see: res/comic_navigator_constraintlayout.xml) include:
-     *  - leftArrowImageButton
-     *  - comicNumberButton
-     *  - rightArrowImageButton
-     */
-    private void disableComicNavigator()
-    {
-        ConstraintLayout comicNavigatorConstraintLayout = findViewById(R.id.comicNavigatorConstraintLayout);
-        for (int childIdx = 0; childIdx < comicNavigatorConstraintLayout.getChildCount(); ++childIdx)
-        {
-            View child = comicNavigatorConstraintLayout.getChildAt(childIdx);
-            child.setEnabled(false);
-        }
-    }
-
-    /**
-     * Objects in navigator display (see: res/comic_navigator_constraintlayout.xml) include:
-     *  - leftArrowImageButton
-     *  - comicNumberButton
-     *  - rightArrowImageButton
-     */
-    private void enableComicNavigator()
-    {
-        ConstraintLayout comicNavigatorConstraintLayout = findViewById(R.id.comicNavigatorConstraintLayout);
-        for (int childIdx = 0; childIdx < comicNavigatorConstraintLayout.getChildCount(); ++childIdx)
-        {
-            View child = comicNavigatorConstraintLayout.getChildAt(childIdx);
-            child.setEnabled(true);
-        }
-    }
-
-    /**
-     * Objects in miscellaneous control (see: res/comic_misccontrols_constraintlayout.xml) include:
-     *  - photoGalleryImageButton
-     *  - newestComicImageButton
-     */
-    private void disableComicMiscControls()
-    {
-        ConstraintLayout comicMiscControlsConstraintLayout = findViewById(R.id.comicMiscControlsConstraintLayout);
-        for (int childIdx = 0; childIdx < comicMiscControlsConstraintLayout.getChildCount(); ++childIdx)
-        {
-            View child = comicMiscControlsConstraintLayout.getChildAt(childIdx);
-            child.setEnabled(false);
-            child.setAlpha(0.5f);
-        }
-    }
-
-    /**
-     * Objects in miscellaneous control (see: res/comic_misccontrols_constraintlayout.xml) include:
-     *  - photoGalleryImageButton
-     *  - newestComicImageButton
-     */
-    private void enableComicMiscControls()
-    {
-        ConstraintLayout comicMiscControlsConstraintLayout = findViewById(R.id.comicMiscControlsConstraintLayout);
-        for (int childIdx = 0; childIdx < comicMiscControlsConstraintLayout.getChildCount(); ++childIdx)
-        {
-            View child = comicMiscControlsConstraintLayout.getChildAt(childIdx);
-            child.setEnabled(true);
-            child.setAlpha(1f);
-        }
     }
 
     /**
@@ -478,7 +367,7 @@ public class MainActivity extends AppCompatActivity
         }
 
         // display comic
-        hideAllViewsInMainDisplay();
+        mViewGroupAccessibilityManager.setChildVisibility(findViewById(R.id.mainDisplayRelativeLayout), View.GONE);
         mComicPhotoView.setVisibility(View.VISIBLE);
     }
 
@@ -561,4 +450,6 @@ public class MainActivity extends AppCompatActivity
     private ImageButton mPhotoGalleryImageButton;
     private ImageButton mNewestComicImageButton;
     private Toast mToast;
+
+    private final ViewGroupAccessibilityManager mViewGroupAccessibilityManager = new ViewGroupAccessibilityManager();
 }
