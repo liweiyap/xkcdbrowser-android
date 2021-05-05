@@ -25,3 +25,10 @@ Der Benutzer hat die Möglichkeit, ein zufälliges Comic auszuwählen. Der Benut
 ### User Story #5 - Ein Comic als Favorit speichern
 
 Der Benutzer hat die Möglichkeit, das Comic als Favorit in die Fotomediathek abzuspeichern.
+
+## Verwendete Third-Party-Libraries
+
+* [Volley](https://github.com/google/volley)
+* [Picasso](https://github.com/square/picasso)
+* [PhotoView](https://github.com/Baseflow/PhotoView)
+* [Material Design](https://github.com/material-components/material-components-android)
