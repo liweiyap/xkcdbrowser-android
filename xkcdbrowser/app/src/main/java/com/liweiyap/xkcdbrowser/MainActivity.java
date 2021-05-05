@@ -5,9 +5,7 @@ import androidx.core.app.ActivityCompat;
 
 import android.annotation.SuppressLint;
 import android.app.Dialog;
-import android.content.Context;
 import android.content.pm.ActivityInfo;
-import android.content.pm.PackageManager;
 import android.graphics.drawable.BitmapDrawable;
 import android.os.Bundle;
 import android.provider.MediaStore;
@@ -27,9 +25,6 @@ import com.liweiyap.xkcdbrowser.json.JsonObjectRequestQueue;
 import com.liweiyap.xkcdbrowser.ui.ViewGroupAccessibilityManager;
 import com.squareup.picasso.Picasso;
 
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
-import java.util.Date;
 import java.util.Locale;
 
 public class MainActivity extends AppCompatActivity
@@ -147,7 +142,7 @@ public class MainActivity extends AppCompatActivity
             }
 
             String[] PERMISSIONS = {android.Manifest.permission.WRITE_EXTERNAL_STORAGE};
-            if (!hasPermissions(this, PERMISSIONS))
+            if (!PermissionChecker.hasPermissions(this, PERMISSIONS))
             {
                 ActivityCompat.requestPermissions(this, PERMISSIONS,112);
             }
@@ -184,25 +179,6 @@ public class MainActivity extends AppCompatActivity
         mViewGroupAccessibilityManager.setChildEnabledState(findViewById(R.id.comicMiscControlsConstraintLayout), false, 0.5f);
 
         updateComicAndMetaData(mNewestComicURLString);
-    }
-
-    /**
-     * Need to ask for permission at run-time
-     */
-    private static boolean hasPermissions(Context context, String... permissions)
-    {
-        if (context != null && permissions != null)
-        {
-            for (String permission : permissions)
-            {
-                if (ActivityCompat.checkSelfPermission(context, permission) != PackageManager.PERMISSION_GRANTED)
-                {
-                    return false;
-                }
-            }
-        }
-
-        return true;
     }
 
     /**
@@ -282,7 +258,7 @@ public class MainActivity extends AppCompatActivity
                      (jsonDataModel.getComicYear() != null) )
                 {
                     mComicDateTextView.setText(
-                        formatDate(
+                        DateFormatter.formatDate(
                             jsonDataModel.getComicDay(),
                             jsonDataModel.getComicMonth(),
                             jsonDataModel.getComicYear()));
@@ -327,47 +303,6 @@ public class MainActivity extends AppCompatActivity
                 mPhotoGalleryImageButton.setAlpha(1f);
             }
         });
-    }
-
-    /**
-     * Called only from updateComicAndMetadata().
-     * Although at the start of this function, we handle the edge case of the arguments being NULL Strings,
-     * do note that due to the logic of updateComicAndMetadata(), these arguments should never be NULL Strings.
-     */
-    private String formatDate(final String day, final String month, final String year)
-    {
-        if ((day == null) || (month == null) || (year == null))
-        {
-            return "";
-        }
-
-        SimpleDateFormat simpleDateFormat = new SimpleDateFormat("dd/MM/yyyy", java.util.Locale.ENGLISH);
-
-        String dateString = String.format(
-            "%s/%s/%s",
-            String.format(java.util.Locale.ENGLISH,"%02d", Integer.valueOf(day)),
-            String.format(java.util.Locale.ENGLISH,"%02d", Integer.valueOf(month)),
-            String.format(java.util.Locale.ENGLISH,"%02d", Integer.valueOf(year))
-        );
-
-        Date date = null;
-
-        try
-        {
-            date = simpleDateFormat.parse(dateString);
-        }
-        catch (ParseException e)
-        {
-            e.printStackTrace();
-        }
-
-        if (date == null)
-        {
-            return "";
-        }
-
-        simpleDateFormat.applyPattern("EEE, d MMM yyyy");
-        return simpleDateFormat.format(date);
     }
 
     private void showNewToast(final String message)
