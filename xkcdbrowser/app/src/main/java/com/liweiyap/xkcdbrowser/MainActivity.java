@@ -145,7 +145,7 @@ public class MainActivity extends AppCompatActivity
             String[] PERMISSIONS = {android.Manifest.permission.WRITE_EXTERNAL_STORAGE};
             if (!PermissionChecker.hasPermissions(this, PERMISSIONS))
             {
-                ActivityCompat.requestPermissions(this, PERMISSIONS,112);
+                ActivityCompat.requestPermissions(this, PERMISSIONS, 112);
             }
 
             String imageURL = MediaStore.Images.Media.insertImage(
@@ -233,8 +233,8 @@ public class MainActivity extends AppCompatActivity
         //
         // So Volley already uses background threads. Thus, perhaps no need to use Executor like in this example?
         // https://developer.android.com/guide/background/threading#java
-        // But to handle race condition if user clicks too fast on leftArrowImageButton, rightArrowImageButton, or newestComicImageButton,
-        // we declare a mLastRequestedURLString variable.
+        // But to handle race condition if user clicks too fast on leftArrowImageButton or rightArrowImageButton,
+        // we declare a mLastRequestedURLString variable. (Note that this doesn't really solve the issue for newestComicImageButton, but unlike for leftArrowImageButton or rightArrowImageButton, the problem isn't noticeable.)
         // The race condition occurs in the first place because Volley network calls are asynchronous in nature,
         // (https://stackoverflow.com/questions/35362167/avoid-getting-race-condition-in-android-volley-in-android-app)
         // so if user clicks too fast and multiple requests are sent over a very short period of time,
