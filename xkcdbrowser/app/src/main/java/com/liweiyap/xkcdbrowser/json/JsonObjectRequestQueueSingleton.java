@@ -12,11 +12,34 @@ import com.android.volley.toolbox.Volley;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-public class JsonObjectRequestQueue
+/**
+ * From the documentation (https://developer.android.com/training/volley/requestqueue#singleton):
+ * If your application makes constant use of the network, it's probably most efficient to set up a single instance of RequestQueue
+ * that will last the lifetime of your app. You can achieve this in various ways. The recommended approach is to implement a singleton class
+ * that encapsulates RequestQueue and other Volley functionality. Another approach is to subclass Application and set up the RequestQueue in Application.onCreate().
+ * But this approach is discouraged; a static singleton can provide the same functionality in a more modular way.
+ */
+public class JsonObjectRequestQueueSingleton
 {
-    public JsonObjectRequestQueue(final Context context)
+    private JsonObjectRequestQueueSingleton(final Context context)
     {
         mRequestQueue = Volley.newRequestQueue(context);
+    }
+
+    /**
+     * @param context Use ApplicationContext to ensure that the RequestQueue will last for the lifetime of your app,
+     *                instead of being recreated every time the Activity is recreated.
+     *                In other words, this prevents leaking of the Activity.
+     * @return single instance of JsonObjectRequestQueueSingleton
+     */
+    public static synchronized JsonObjectRequestQueueSingleton getInstance(final Context context)
+    {
+        if (instance == null)
+        {
+            instance = new JsonObjectRequestQueueSingleton(context);
+        }
+
+        return instance;
     }
 
     public void enqueueJSONObjectRequest(final String urlString, final JsonObjectRequestCallback callback)
@@ -100,4 +123,5 @@ public class JsonObjectRequestQueue
     }
 
     private final RequestQueue mRequestQueue;
+    private static JsonObjectRequestQueueSingleton instance;
 }

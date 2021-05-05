@@ -21,7 +21,7 @@ import com.github.chrisbanes.photoview.PhotoView;
 import com.google.android.material.button.MaterialButton;
 import com.liweiyap.xkcdbrowser.json.JsonDataModel;
 import com.liweiyap.xkcdbrowser.json.JsonObjectRequestCallback;
-import com.liweiyap.xkcdbrowser.json.JsonObjectRequestQueue;
+import com.liweiyap.xkcdbrowser.json.JsonObjectRequestQueueSingleton;
 import com.liweiyap.xkcdbrowser.ui.ViewGroupAccessibilityManager;
 import com.liweiyap.xkcdbrowser.util.DateFormatter;
 import com.liweiyap.xkcdbrowser.util.PermissionChecker;
@@ -48,7 +48,7 @@ public class MainActivity extends AppCompatActivity
         mPhotoGalleryImageButton = findViewById(R.id.photoGalleryImageButton);
         mNewestComicImageButton = findViewById(R.id.newestComicImageButton);
 
-        mJsonObjectRequestQueue = new JsonObjectRequestQueue(this);
+        mJsonObjectRequestQueueSingleton = JsonObjectRequestQueueSingleton.getInstance(getApplicationContext());
 
         // ====================================================================
         // Set onClickListeners
@@ -239,7 +239,7 @@ public class MainActivity extends AppCompatActivity
         // (https://stackoverflow.com/questions/35362167/avoid-getting-race-condition-in-android-volley-in-android-app)
         // so if user clicks too fast and multiple requests are sent over a very short period of time,
         // then we have no control over which request will get completed first.
-        mJsonObjectRequestQueue.enqueueJSONObjectRequest(urlString, new JsonObjectRequestCallback() {
+        mJsonObjectRequestQueueSingleton.enqueueJSONObjectRequest(urlString, new JsonObjectRequestCallback() {
             @SuppressLint("SetTextI18n")
             @Override
             public void onComplete(final JsonDataModel jsonDataModel, final String urlString) {
@@ -376,6 +376,6 @@ public class MainActivity extends AppCompatActivity
     private Toast mToast;
 
     private final ViewGroupAccessibilityManager mViewGroupAccessibilityManager = new ViewGroupAccessibilityManager();
-    private JsonObjectRequestQueue mJsonObjectRequestQueue;
+    private JsonObjectRequestQueueSingleton mJsonObjectRequestQueueSingleton;
     private String mLastRequestedURLString;
 }
