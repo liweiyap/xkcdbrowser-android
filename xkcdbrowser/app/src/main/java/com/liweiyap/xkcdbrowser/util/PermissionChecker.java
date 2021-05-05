@@ -1,4 +1,4 @@
-package com.liweiyap.xkcdbrowser;
+package com.liweiyap.xkcdbrowser.util;
 
 import android.content.Context;
 import android.content.pm.PackageManager;

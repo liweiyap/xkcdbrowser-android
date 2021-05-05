@@ -1,4 +1,4 @@
-package com.liweiyap.xkcdbrowser;
+package com.liweiyap.xkcdbrowser.util;
 
 import org.jetbrains.annotations.NotNull;
 

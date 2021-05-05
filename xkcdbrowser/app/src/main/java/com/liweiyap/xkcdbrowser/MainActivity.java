@@ -23,6 +23,8 @@ import com.liweiyap.xkcdbrowser.json.JsonDataModel;
 import com.liweiyap.xkcdbrowser.json.JsonObjectRequestCallback;
 import com.liweiyap.xkcdbrowser.json.JsonObjectRequestQueue;
 import com.liweiyap.xkcdbrowser.ui.ViewGroupAccessibilityManager;
+import com.liweiyap.xkcdbrowser.util.DateFormatter;
+import com.liweiyap.xkcdbrowser.util.PermissionChecker;
 import com.squareup.picasso.Picasso;
 
 import java.util.Locale;
@@ -45,8 +47,7 @@ public class MainActivity extends AppCompatActivity
         mRefreshMaterialButton = findViewById(R.id.refreshMaterialButton);
         mPhotoGalleryImageButton = findViewById(R.id.photoGalleryImageButton);
         mNewestComicImageButton = findViewById(R.id.newestComicImageButton);
-
-//        mRequestQueue = Volley.newRequestQueue(this);
+        
         mJsonObjectRequestQueue = new JsonObjectRequestQueue(this);
 
         // ====================================================================
