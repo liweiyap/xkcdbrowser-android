@@ -19,19 +19,13 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.android.volley.Request;
-import com.android.volley.RequestQueue;
-import com.android.volley.Response;
-import com.android.volley.VolleyError;
-import com.android.volley.toolbox.JsonObjectRequest;
-import com.android.volley.toolbox.Volley;
 import com.github.chrisbanes.photoview.PhotoView;
 import com.google.android.material.button.MaterialButton;
+import com.liweiyap.xkcdbrowser.json.JsonDataModel;
+import com.liweiyap.xkcdbrowser.json.JsonObjectRequestCallback;
+import com.liweiyap.xkcdbrowser.json.JsonObjectRequestQueue;
 import com.liweiyap.xkcdbrowser.ui.ViewGroupAccessibilityManager;
 import com.squareup.picasso.Picasso;
-
-import org.json.JSONException;
-import org.json.JSONObject;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -57,7 +51,8 @@ public class MainActivity extends AppCompatActivity
         mPhotoGalleryImageButton = findViewById(R.id.photoGalleryImageButton);
         mNewestComicImageButton = findViewById(R.id.newestComicImageButton);
 
-        mRequestQueue = Volley.newRequestQueue(this);
+//        mRequestQueue = Volley.newRequestQueue(this);
+        mJsonObjectRequestQueue = new JsonObjectRequestQueue(this);
 
         // ====================================================================
         // Set onClickListeners
@@ -66,11 +61,11 @@ public class MainActivity extends AppCompatActivity
         mRefreshMaterialButton.setOnClickListener(view -> {
             if (mNewestComicNum == null)
             {
-                enqueueJSONObjectRequest(mNewestComicURLString);
+                updateComicAndMetaData(mNewestComicURLString);
             }
             else
             {
-                enqueueJSONObjectRequest(String.format(Locale.ENGLISH, mGeneralComicURLStringPattern, mCurrentlyDisplayedComicNum));
+                updateComicAndMetaData(String.format(Locale.ENGLISH, mGeneralComicURLStringPattern, mCurrentlyDisplayedComicNum));
             }
         });
 
@@ -188,7 +183,7 @@ public class MainActivity extends AppCompatActivity
         mViewGroupAccessibilityManager.setChildEnabledState(findViewById(R.id.comicNavigatorConstraintLayout), false);
         mViewGroupAccessibilityManager.setChildEnabledState(findViewById(R.id.comicMiscControlsConstraintLayout), false, 0.5f);
 
-        enqueueJSONObjectRequest(mNewestComicURLString);
+        updateComicAndMetaData(mNewestComicURLString);
     }
 
     /**
@@ -227,15 +222,10 @@ public class MainActivity extends AppCompatActivity
         mComicTitleTextView.setText("");
         mComicDateTextView.setText("");
 
-        enqueueJSONObjectRequest(String.format(Locale.ENGLISH, mGeneralComicURLStringPattern, comicNum));
+        updateComicAndMetaData(String.format(Locale.ENGLISH, mGeneralComicURLStringPattern, comicNum));
     }
 
-    /**
-     * Called from onCreate(), navigateToNewComic(), and refreshMaterialButton::onClick().
-     * Although at the start of this function, we handle the edge case of the argument urlString being a NULL String,
-     * do note that this edge case is already handled by the above functions, and hence, urlString should never be a NULL String.
-     */
-    private void enqueueJSONObjectRequest(final String urlString)
+    private void updateComicAndMetaData(final String urlString)
     {
         if (urlString == null)
         {
@@ -246,33 +236,12 @@ public class MainActivity extends AppCompatActivity
         mViewGroupAccessibilityManager.setChildVisibility(findViewById(R.id.mainDisplayRelativeLayout), View.GONE);
         mLoadingProgressBar.setVisibility(View.VISIBLE);
 
-        JsonObjectRequest jsonObjectRequest = new JsonObjectRequest(
-            Request.Method.GET, urlString, null,
-            new Response.Listener<JSONObject>() {
-                @Override
-                public void onResponse(JSONObject response) {
-                    updateComicAndMetadata(response);
-
-                    if (urlString.equals(mNewestComicURLString))
-                    {
-                        // this is the only time that newest comic number is updated
-                        mNewestComicNum = mCurrentlyDisplayedComicNum;
-
-                        // navigator buttons are initially disabled
-                        // enable them only after the newest comic strip has been displayed for the first time
-                        mViewGroupAccessibilityManager.setChildEnabledState(findViewById(R.id.comicNavigatorConstraintLayout), true);
-                        mViewGroupAccessibilityManager.setChildEnabledState(findViewById(R.id.comicMiscControlsConstraintLayout), true, 1f);
-
-                        return;
-                    }
-
-                    mPhotoGalleryImageButton.setEnabled(true);
-                    mPhotoGalleryImageButton.setAlpha(1f);
-                }
-            },
-            new Response.ErrorListener() {
-                @Override
-                public void onErrorResponse(VolleyError error) {
+        mJsonObjectRequestQueue.enqueueJSONObjectRequest(urlString, new JsonObjectRequestCallback() {
+            @SuppressLint("SetTextI18n")
+            @Override
+            public void onComplete(final JsonDataModel jsonDataModel, final String urlString) {
+                if (jsonDataModel == null)
+                {
                     mViewGroupAccessibilityManager.setChildVisibility(findViewById(R.id.mainDisplayRelativeLayout), View.GONE);
                     mRefreshMaterialButton.setVisibility(View.VISIBLE);
                     mComicPhotoView.setImageResource(0);
@@ -280,95 +249,84 @@ public class MainActivity extends AppCompatActivity
                     mComicAltText = null;
                     mPhotoGalleryImageButton.setEnabled(false);
                     mPhotoGalleryImageButton.setAlpha(0.5f);
+                    return;
                 }
-            });
 
-        mRequestQueue.add(jsonObjectRequest);
-    }
+                if (jsonDataModel.getComicImageUrl() == null)
+                {
+                    mComicPhotoView.setImageResource(0);
+                }
+                else
+                {
+                    Picasso.get().load(jsonDataModel.getComicImageUrl()).into(mComicPhotoView);
+                }
 
-    /**
-     * Called only from enqueueJSONObjectRequest().
-     * Although at the start of this function, we handle the edge case of the argument jsonObject being a NULL JSONObject,
-     * do note that due to the logic of enqueueJSONObjectRequest(), jsonObject should never be a NULL JSONObject.
-     * In addition, just in case some comics have incomplete JSON data,
-     * we do extensive checks for the existence of all relevant keys in jsonObject.
-     */
-    @SuppressLint("SetTextI18n")
-    private void updateComicAndMetadata(final JSONObject jsonObject)
-    {
-        if (jsonObject == null)
-        {
-            return;
-        }
+                if (jsonDataModel.getComicNum() == null)
+                {
+                    mComicNumberButton.setText("");
+                }
+                else
+                {
+                    mComicNumberButton.setText("xkcd #" + jsonDataModel.getComicNum());
+                    mCurrentlyDisplayedComicNum = jsonDataModel.getComicNum();
+                }
 
-        // update from JSON
-        try
-        {
-            if (jsonObject.isNull("img"))
-            {
-                mComicPhotoView.setImageResource(0);
-            }
-            else
-            {
-                Picasso.get().load(jsonObject.getString("img")).into(mComicPhotoView);
-            }
+                mComicTitleTextView.setText(
+                    jsonDataModel.getComicTitle() == null ?
+                        "":
+                        jsonDataModel.getComicTitle()
+                );
 
-            if (jsonObject.isNull("num"))
-            {
-                mComicNumberButton.setText("");
-            }
-            else
-            {
-                String numString = jsonObject.getString("num");
-                mComicNumberButton.setText("xkcd #" + numString);
-                mCurrentlyDisplayedComicNum = Integer.valueOf(numString);
-            }
+                if ( (jsonDataModel.getComicDay() != null) &&
+                     (jsonDataModel.getComicMonth() != null) &&
+                     (jsonDataModel.getComicYear() != null) )
+                {
+                    mComicDateTextView.setText(
+                        formatDate(
+                            jsonDataModel.getComicDay(),
+                            jsonDataModel.getComicMonth(),
+                            jsonDataModel.getComicYear()));
+                }
+                else
+                {
+                    mComicDateTextView.setText("");
+                }
 
-            if (jsonObject.isNull("title"))
-            {
-                mComicTitleTextView.setText("");
-            }
-            else
-            {
-                mComicTitleTextView.setText(jsonObject.getString("title"));
-            }
+                if (jsonDataModel.getComicAltText() == null)
+                {
+                    mComicPhotoView.setOnLongClickListener(null);
+                }
+                else
+                {
+                    mComicAltText = jsonDataModel.getComicAltText();
 
-            if ((!jsonObject.isNull("day")) &&
-                (!jsonObject.isNull("month")) &&
-                (!jsonObject.isNull("year")))
-            {
-                mComicDateTextView.setText(
-                    formatDate(
-                        jsonObject.getString("day"),
-                        jsonObject.getString("month"),
-                        jsonObject.getString("year")));
-            }
-            else
-            {
-                mComicDateTextView.setText("");
-            }
+                    mComicPhotoView.setOnLongClickListener(view -> {
+                        showNewToast(mComicAltText);
+                        return true;
+                    });
+                }
 
-            if (jsonObject.isNull("alt"))
-            {
-                mComicPhotoView.setOnLongClickListener(null);
-            }
-            else
-            {
-                mComicAltText = jsonObject.getString("alt");
+                // display comic
+                mViewGroupAccessibilityManager.setChildVisibility(findViewById(R.id.mainDisplayRelativeLayout), View.GONE);
+                mComicPhotoView.setVisibility(View.VISIBLE);
 
-                mComicPhotoView.setOnLongClickListener(view -> {
-                    showNewToast(mComicAltText);
-                    return true;
-                });
-            }
-        }
-        catch (JSONException e) {
-            e.printStackTrace();
-        }
+                if (urlString.equals(mNewestComicURLString))
+                {
+                    // this is the only time that newest comic number is updated
+                    mNewestComicNum = mCurrentlyDisplayedComicNum;
 
-        // display comic
-        mViewGroupAccessibilityManager.setChildVisibility(findViewById(R.id.mainDisplayRelativeLayout), View.GONE);
-        mComicPhotoView.setVisibility(View.VISIBLE);
+                    // navigator buttons are initially disabled
+                    // enable them only after the newest comic strip has been displayed for the first time
+                    mViewGroupAccessibilityManager.setChildEnabledState(findViewById(R.id.comicNavigatorConstraintLayout), true);
+                    mViewGroupAccessibilityManager.setChildEnabledState(findViewById(R.id.comicMiscControlsConstraintLayout), true, 1f);
+
+                    return;
+                }
+
+                mPhotoGalleryImageButton.setEnabled(true);
+                mPhotoGalleryImageButton.setAlpha(1f);
+            }
+        });
     }
 
     /**
@@ -435,7 +393,6 @@ public class MainActivity extends AppCompatActivity
 
     private final String mNewestComicURLString = "https://xkcd.com/info.0.json";
     private final String mGeneralComicURLStringPattern = "https://xkcd.com/%d/info.0.json";
-    private RequestQueue mRequestQueue;
     private Integer mCurrentlyDisplayedComicNum;
     private Integer mNewestComicNum;
 
@@ -452,4 +409,5 @@ public class MainActivity extends AppCompatActivity
     private Toast mToast;
 
     private final ViewGroupAccessibilityManager mViewGroupAccessibilityManager = new ViewGroupAccessibilityManager();
+    private JsonObjectRequestQueue mJsonObjectRequestQueue;
 }
