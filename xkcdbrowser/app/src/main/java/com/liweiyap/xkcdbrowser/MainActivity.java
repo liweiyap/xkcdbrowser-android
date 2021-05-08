@@ -1,5 +1,6 @@
 package com.liweiyap.xkcdbrowser;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 
@@ -150,7 +151,7 @@ public class MainActivity extends AppCompatActivity
             {
                 if (imageURL == null)
                 {
-                    throw new Exception("Failed to save image");
+                    throw new RuntimeException("Failed to save image");
                 }
                 else
                 {
@@ -235,7 +236,7 @@ public class MainActivity extends AppCompatActivity
         JsonObjectRequestQueueSingleton.getInstance(getApplicationContext()).enqueueJSONObjectRequest(urlString, new JsonObjectRequestCallback() {
             @SuppressLint("SetTextI18n")
             @Override
-            public void onComplete(final JsonDataModel jsonDataModel, final String urlString) {
+            public void onComplete(final JsonDataModel jsonDataModel, @NonNull final String urlString) {
                 if ( (mLastRequestedURLString != null) && (!urlString.equals(mLastRequestedURLString)) )
                 {
                     return;

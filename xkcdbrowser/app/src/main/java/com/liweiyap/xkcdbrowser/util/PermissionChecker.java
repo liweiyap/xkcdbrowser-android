@@ -3,13 +3,14 @@ package com.liweiyap.xkcdbrowser.util;
 import android.content.Context;
 import android.content.pm.PackageManager;
 
+import androidx.annotation.NonNull;
 import androidx.core.app.ActivityCompat;
 
 public class PermissionChecker
 {
-    public static boolean hasPermissions(final Context context, final String... permissions)
+    public static boolean hasPermissions(@NonNull final Context context, final String... permissions)
     {
-        if (context != null && permissions != null)
+        if (permissions != null)
         {
             for (String permission : permissions)
             {

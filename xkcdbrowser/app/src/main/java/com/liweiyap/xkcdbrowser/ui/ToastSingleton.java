@@ -3,6 +3,8 @@ package com.liweiyap.xkcdbrowser.ui;
 import android.content.Context;
 import android.widget.Toast;
 
+import androidx.annotation.NonNull;
+
 public class ToastSingleton
 {
     private ToastSingleton(){}
@@ -17,7 +19,7 @@ public class ToastSingleton
         return instance;
     }
 
-    public void showNewToast(final Context context, final String message, final int duration) throws RuntimeException
+    public void showNewToast(@NonNull final Context context, final String message, final int duration) throws RuntimeException
     {
         if ( !((duration == Toast.LENGTH_SHORT) || (duration == Toast.LENGTH_LONG)) )
         {
@@ -26,7 +28,7 @@ public class ToastSingleton
                 "Programming Error. Value for duration (" + duration + ") not recognised.");
         }
 
-        if ( (context == null) || (message == null) )
+        if (message == null)
         {
             return;
         }

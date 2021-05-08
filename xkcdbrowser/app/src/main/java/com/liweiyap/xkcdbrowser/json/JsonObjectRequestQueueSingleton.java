@@ -2,6 +2,8 @@ package com.liweiyap.xkcdbrowser.json;
 
 import android.content.Context;
 
+import androidx.annotation.NonNull;
+
 import com.android.volley.Request;
 import com.android.volley.RequestQueue;
 import com.android.volley.Response;
@@ -21,7 +23,7 @@ import org.json.JSONObject;
  */
 public class JsonObjectRequestQueueSingleton
 {
-    private JsonObjectRequestQueueSingleton(final Context context)
+    private JsonObjectRequestQueueSingleton(@NonNull final Context context)
     {
         mRequestQueue = Volley.newRequestQueue(context);
     }
@@ -32,14 +34,14 @@ public class JsonObjectRequestQueueSingleton
      *                In other words, this prevents leaking of the Activity.
      * @return single instance of JsonObjectRequestQueueSingleton
      */
-    public static synchronized JsonObjectRequestQueueSingleton getInstance(final Context context)
+    public static synchronized JsonObjectRequestQueueSingleton getInstance(@NonNull final Context context)
     {
-        if (instance == null)
+        if (mInstance == null)
         {
-            instance = new JsonObjectRequestQueueSingleton(context);
+            mInstance = new JsonObjectRequestQueueSingleton(context);
         }
 
-        return instance;
+        return mInstance;
     }
 
     public void enqueueJSONObjectRequest(final String urlString, final JsonObjectRequestCallback callback)
@@ -55,12 +57,23 @@ public class JsonObjectRequestQueueSingleton
                 @Override
                 public void onResponse(JSONObject response) {
                     JsonDataModel jsonDataModel = parseJsonObject(response);
+
+                    if (callback == null)
+                    {
+                        return;
+                    }
+
                     callback.onComplete(jsonDataModel, urlString);
                 }
             },
             new Response.ErrorListener() {
                 @Override
                 public void onErrorResponse(VolleyError error) {
+                    if (callback == null)
+                    {
+                        return;
+                    }
+
                     callback.onComplete(null, urlString);
                 }
             });
@@ -123,5 +136,5 @@ public class JsonObjectRequestQueueSingleton
     }
 
     private final RequestQueue mRequestQueue;
-    private static JsonObjectRequestQueueSingleton instance;
+    private static JsonObjectRequestQueueSingleton mInstance;
 }
