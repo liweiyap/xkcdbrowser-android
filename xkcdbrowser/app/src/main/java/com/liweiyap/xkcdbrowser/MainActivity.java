@@ -22,7 +22,7 @@ import com.google.android.material.button.MaterialButton;
 import com.liweiyap.xkcdbrowser.json.JsonDataModel;
 import com.liweiyap.xkcdbrowser.json.JsonObjectRequestCallback;
 import com.liweiyap.xkcdbrowser.json.JsonObjectRequestQueueSingleton;
-import com.liweiyap.xkcdbrowser.ui.ToastDisplayer;
+import com.liweiyap.xkcdbrowser.ui.ToastSingleton;
 import com.liweiyap.xkcdbrowser.ui.ViewGroupAccessibilityManager;
 import com.liweiyap.xkcdbrowser.util.DateFormatter;
 import com.liweiyap.xkcdbrowser.util.PermissionChecker;
@@ -154,7 +154,7 @@ public class MainActivity extends AppCompatActivity
                 }
                 else
                 {
-                    ToastDisplayer.showNewToast(getApplicationContext(), "Image saved to Photo Gallery.", Toast.LENGTH_SHORT);
+                    ToastSingleton.getInstance().showNewToast(getApplicationContext(), "Image saved to Photo Gallery.", Toast.LENGTH_SHORT);
                 }
             }
             catch (Exception e)
@@ -180,7 +180,7 @@ public class MainActivity extends AppCompatActivity
      * do note that this edge case is already handled by the above UI elements, and hence, comicNum should never be a NULL Integer.
      */
     @SuppressLint("SetTextI18n")
-    private void navigateToNewComic(Integer comicNum)
+    private void navigateToNewComic(final Integer comicNum)
     {
         if (comicNum == null)
         {
@@ -302,7 +302,7 @@ public class MainActivity extends AppCompatActivity
                     mComicAltText = jsonDataModel.getComicAltText();
 
                     mComicPhotoView.setOnLongClickListener(view -> {
-                        ToastDisplayer.showNewToast(getApplicationContext(), mComicAltText, Toast.LENGTH_LONG);
+                        ToastSingleton.getInstance().showNewToast(getApplicationContext(), mComicAltText, Toast.LENGTH_LONG);
                         return true;
                     });
                 }

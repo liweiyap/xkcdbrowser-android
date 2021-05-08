@@ -3,18 +3,30 @@ package com.liweiyap.xkcdbrowser.ui;
 import android.content.Context;
 import android.widget.Toast;
 
-public class ToastDisplayer
+public class ToastSingleton
 {
-    public static void showNewToast(final Context context, final String message, final int duration)
+    private ToastSingleton(){}
+
+    public static synchronized ToastSingleton getInstance()
+    {
+        if (instance == null)
+        {
+            instance = new ToastSingleton();
+        }
+
+        return instance;
+    }
+
+    public void showNewToast(final Context context, final String message, final int duration)
     {
         if ( !((duration == Toast.LENGTH_SHORT) || (duration == Toast.LENGTH_LONG)) )
         {
             throw new RuntimeException(
-                "ToastDisplayer::showNewToast(): " +
+                "ToastSingleton::showNewToast(): " +
                 "Programming Error. Value for duration (" + duration + ") not recognised.");
         }
 
-        if (message == null)
+        if ( (context == null) || (message == null) )
         {
             return;
         }
@@ -33,5 +45,6 @@ public class ToastDisplayer
         mToast.show();
     }
 
-    private static Toast mToast;
+    private Toast mToast;
+    private static ToastSingleton instance;
 }

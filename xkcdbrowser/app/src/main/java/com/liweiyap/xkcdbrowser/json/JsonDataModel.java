@@ -39,37 +39,37 @@ public class JsonDataModel
         return comicAltText;
     }
 
-    public void setComicImageUrl(String comicImageUrl)
+    public void setComicImageUrl(final String comicImageUrl)
     {
         this.comicImageUrl = comicImageUrl;
     }
 
-    public void setComicNum(Integer comicNum)
+    public void setComicNum(final Integer comicNum)
     {
         this.comicNum = comicNum;
     }
 
-    public void setComicTitle(String comicTitle)
+    public void setComicTitle(final String comicTitle)
     {
         this.comicTitle = comicTitle;
     }
 
-    public void setComicDay(String comicDay)
+    public void setComicDay(final String comicDay)
     {
         this.comicDay = comicDay;
     }
 
-    public void setComicMonth(String comicMonth)
+    public void setComicMonth(final String comicMonth)
     {
         this.comicMonth = comicMonth;
     }
 
-    public void setComicYear(String comicYear)
+    public void setComicYear(final String comicYear)
     {
         this.comicYear = comicYear;
     }
 
-    public void setComicAltText(String comicAltText)
+    public void setComicAltText(final String comicAltText)
     {
         this.comicAltText = comicAltText;
     }
