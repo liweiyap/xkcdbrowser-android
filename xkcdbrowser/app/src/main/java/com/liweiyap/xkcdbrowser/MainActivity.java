@@ -126,14 +126,7 @@ public class MainActivity extends AppCompatActivity
             dialog.show();
         });
 
-        mNewestComicImageButton.setOnClickListener(view -> {
-            if (mNewestComicNum == null)
-            {
-                return;
-            }
-
-            navigateToNewComic(mNewestComicNum);
-        });
+        mNewestComicImageButton.setOnClickListener(view -> updateComicAndMetaData(mNewestComicURLString));
 
         mPhotoGalleryImageButton.setOnClickListener(view -> {
             if ((mComicPhotoView == null) || (mComicPhotoView.getDrawable() == null))
@@ -233,7 +226,8 @@ public class MainActivity extends AppCompatActivity
         // So Volley already uses background threads. Thus, perhaps no need to use Executor like in this example?
         // https://developer.android.com/guide/background/threading#java
         // But to handle race condition if user clicks too fast on leftArrowImageButton or rightArrowImageButton,
-        // we declare a mLastRequestedURLString variable. (Note that this doesn't really solve the issue for newestComicImageButton, but unlike for leftArrowImageButton or rightArrowImageButton, the problem isn't noticeable.)
+        // we declare a mLastRequestedURLString variable. (Note that this doesn't really solve the issue for newestComicImageButton,
+        // but unlike for leftArrowImageButton or rightArrowImageButton, the problem isn't noticeable.)
         // The race condition occurs in the first place because Volley network calls are asynchronous in nature,
         // (https://stackoverflow.com/questions/35362167/avoid-getting-race-condition-in-android-volley-in-android-app)
         // so if user clicks too fast and multiple requests are sent over a very short period of time,
@@ -319,7 +313,7 @@ public class MainActivity extends AppCompatActivity
 
                 if (urlString.equals(mNewestComicURLString))
                 {
-                    // this is the only time that newest comic number is updated
+                    // this is the only place in the code that the newest comic number is updated
                     mNewestComicNum = mCurrentlyDisplayedComicNum;
 
                     // navigator buttons are initially disabled
