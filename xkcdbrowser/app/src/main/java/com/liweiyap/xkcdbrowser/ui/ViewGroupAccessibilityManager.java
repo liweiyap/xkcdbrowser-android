@@ -5,9 +5,7 @@ import android.view.ViewGroup;
 
 public class ViewGroupAccessibilityManager
 {
-    public ViewGroupAccessibilityManager(){}
-
-    public void setChildVisibility(ViewGroup viewGroup, int visibility) throws RuntimeException
+    public static void setChildVisibility(final ViewGroup viewGroup, final int visibility) throws RuntimeException
     {
         if ( !((visibility == View.VISIBLE) ||
                (visibility == View.INVISIBLE) ||
@@ -30,7 +28,7 @@ public class ViewGroupAccessibilityManager
         }
     }
 
-    public void setChildEnabledState(ViewGroup viewGroup, boolean enabledState)
+    public static void setChildEnabledState(final ViewGroup viewGroup, final boolean enabledState)
     {
         if (viewGroup == null)
         {
@@ -44,7 +42,7 @@ public class ViewGroupAccessibilityManager
         }
     }
 
-    public void setChildEnabledState(ViewGroup viewGroup, boolean enabledState, float alpha) throws RuntimeException
+    public static void setChildEnabledState(final ViewGroup viewGroup, final boolean enabledState, final float alpha) throws RuntimeException
     {
         if ( (alpha < -Math.ulp(0f)) || (alpha > 1f+Math.ulp(1f)) )
         {

@@ -7,7 +7,7 @@ import androidx.core.app.ActivityCompat;
 
 public class PermissionChecker
 {
-    public static boolean hasPermissions(Context context, String... permissions)
+    public static boolean hasPermissions(final Context context, final String... permissions)
     {
         if (context != null && permissions != null)
         {

@@ -22,6 +22,7 @@ import com.google.android.material.button.MaterialButton;
 import com.liweiyap.xkcdbrowser.json.JsonDataModel;
 import com.liweiyap.xkcdbrowser.json.JsonObjectRequestCallback;
 import com.liweiyap.xkcdbrowser.json.JsonObjectRequestQueueSingleton;
+import com.liweiyap.xkcdbrowser.ui.ToastDisplayer;
 import com.liweiyap.xkcdbrowser.ui.ViewGroupAccessibilityManager;
 import com.liweiyap.xkcdbrowser.util.DateFormatter;
 import com.liweiyap.xkcdbrowser.util.PermissionChecker;
@@ -47,8 +48,6 @@ public class MainActivity extends AppCompatActivity
         mRefreshMaterialButton = findViewById(R.id.refreshMaterialButton);
         mPhotoGalleryImageButton = findViewById(R.id.photoGalleryImageButton);
         mNewestComicImageButton = findViewById(R.id.newestComicImageButton);
-
-        mJsonObjectRequestQueueSingleton = JsonObjectRequestQueueSingleton.getInstance(getApplicationContext());
 
         // ====================================================================
         // Set onClickListeners
@@ -162,7 +161,7 @@ public class MainActivity extends AppCompatActivity
                 }
                 else
                 {
-                    showNewToast("Image saved to Photo Gallery.");
+                    ToastDisplayer.showNewToast(getApplicationContext(), "Image saved to Photo Gallery.", Toast.LENGTH_SHORT);
                 }
             }
             catch (Exception e)
@@ -176,8 +175,8 @@ public class MainActivity extends AppCompatActivity
         // Elements will be automatically re-enabled as soon as the newest comic can be retrieved.
         // ====================================================================
 
-        mViewGroupAccessibilityManager.setChildEnabledState(findViewById(R.id.comicNavigatorConstraintLayout), false);
-        mViewGroupAccessibilityManager.setChildEnabledState(findViewById(R.id.comicMiscControlsConstraintLayout), false, 0.5f);
+        ViewGroupAccessibilityManager.setChildEnabledState(findViewById(R.id.comicNavigatorConstraintLayout), false);
+        ViewGroupAccessibilityManager.setChildEnabledState(findViewById(R.id.comicMiscControlsConstraintLayout), false, 0.5f);
 
         updateComicAndMetaData(mNewestComicURLString);
     }
@@ -217,7 +216,7 @@ public class MainActivity extends AppCompatActivity
         mLastRequestedURLString = urlString;
 
         // display placeholder
-        mViewGroupAccessibilityManager.setChildVisibility(findViewById(R.id.mainDisplayRelativeLayout), View.GONE);
+        ViewGroupAccessibilityManager.setChildVisibility(findViewById(R.id.mainDisplayRelativeLayout), View.GONE);
         mLoadingProgressBar.setVisibility(View.VISIBLE);
 
         // From the documentation (https://developer.android.com/training/volley/simple#send):
@@ -239,7 +238,7 @@ public class MainActivity extends AppCompatActivity
         // (https://stackoverflow.com/questions/35362167/avoid-getting-race-condition-in-android-volley-in-android-app)
         // so if user clicks too fast and multiple requests are sent over a very short period of time,
         // then we have no control over which request will get completed first.
-        mJsonObjectRequestQueueSingleton.enqueueJSONObjectRequest(urlString, new JsonObjectRequestCallback() {
+        JsonObjectRequestQueueSingleton.getInstance(getApplicationContext()).enqueueJSONObjectRequest(urlString, new JsonObjectRequestCallback() {
             @SuppressLint("SetTextI18n")
             @Override
             public void onComplete(final JsonDataModel jsonDataModel, final String urlString) {
@@ -250,7 +249,7 @@ public class MainActivity extends AppCompatActivity
 
                 if (jsonDataModel == null)
                 {
-                    mViewGroupAccessibilityManager.setChildVisibility(findViewById(R.id.mainDisplayRelativeLayout), View.GONE);
+                    ViewGroupAccessibilityManager.setChildVisibility(findViewById(R.id.mainDisplayRelativeLayout), View.GONE);
                     mRefreshMaterialButton.setVisibility(View.VISIBLE);
                     mComicPhotoView.setImageResource(0);
                     mComicPhotoView.setOnLongClickListener(null);
@@ -309,13 +308,13 @@ public class MainActivity extends AppCompatActivity
                     mComicAltText = jsonDataModel.getComicAltText();
 
                     mComicPhotoView.setOnLongClickListener(view -> {
-                        showNewToast(mComicAltText);
+                        ToastDisplayer.showNewToast(getApplicationContext(), mComicAltText, Toast.LENGTH_LONG);
                         return true;
                     });
                 }
 
                 // display comic
-                mViewGroupAccessibilityManager.setChildVisibility(findViewById(R.id.mainDisplayRelativeLayout), View.GONE);
+                ViewGroupAccessibilityManager.setChildVisibility(findViewById(R.id.mainDisplayRelativeLayout), View.GONE);
                 mComicPhotoView.setVisibility(View.VISIBLE);
 
                 if (urlString.equals(mNewestComicURLString))
@@ -325,8 +324,8 @@ public class MainActivity extends AppCompatActivity
 
                     // navigator buttons are initially disabled
                     // enable them only after the newest comic strip has been displayed for the first time
-                    mViewGroupAccessibilityManager.setChildEnabledState(findViewById(R.id.comicNavigatorConstraintLayout), true);
-                    mViewGroupAccessibilityManager.setChildEnabledState(findViewById(R.id.comicMiscControlsConstraintLayout), true, 1f);
+                    ViewGroupAccessibilityManager.setChildEnabledState(findViewById(R.id.comicNavigatorConstraintLayout), true);
+                    ViewGroupAccessibilityManager.setChildEnabledState(findViewById(R.id.comicMiscControlsConstraintLayout), true, 1f);
 
                     return;
                 }
@@ -335,27 +334,6 @@ public class MainActivity extends AppCompatActivity
                 mPhotoGalleryImageButton.setAlpha(1f);
             }
         });
-    }
-
-    private void showNewToast(final String message)
-    {
-        if (message == null)
-        {
-            return;
-        }
-
-        if (mToast != null)
-        {
-            mToast.cancel();
-        }
-
-        if (message.equals(""))
-        {
-            return;
-        }
-
-        mToast = Toast.makeText(this, message, Toast.LENGTH_LONG);
-        mToast.show();
     }
 
     private final String mNewestComicURLString = "https://xkcd.com/info.0.json";
@@ -373,9 +351,6 @@ public class MainActivity extends AppCompatActivity
     private MaterialButton mRefreshMaterialButton;
     private ImageButton mPhotoGalleryImageButton;
     private ImageButton mNewestComicImageButton;
-    private Toast mToast;
 
-    private final ViewGroupAccessibilityManager mViewGroupAccessibilityManager = new ViewGroupAccessibilityManager();
-    private JsonObjectRequestQueueSingleton mJsonObjectRequestQueueSingleton;
     private String mLastRequestedURLString;
 }
