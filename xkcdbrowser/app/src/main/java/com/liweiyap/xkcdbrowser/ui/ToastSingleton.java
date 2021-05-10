@@ -11,12 +11,12 @@ public class ToastSingleton
 
     public static synchronized ToastSingleton getInstance()
     {
-        if (instance == null)
+        if (sInstance == null)
         {
-            instance = new ToastSingleton();
+            sInstance = new ToastSingleton();
         }
 
-        return instance;
+        return sInstance;
     }
 
     public void showNewToast(@NonNull final Context context, final String message, final int duration) throws RuntimeException
@@ -48,5 +48,5 @@ public class ToastSingleton
     }
 
     private Toast mToast;
-    private static ToastSingleton instance;
+    private static ToastSingleton sInstance;
 }

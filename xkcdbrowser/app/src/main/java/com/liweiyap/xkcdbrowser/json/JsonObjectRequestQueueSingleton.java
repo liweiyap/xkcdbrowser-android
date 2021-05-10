@@ -36,12 +36,12 @@ public class JsonObjectRequestQueueSingleton
      */
     public static synchronized JsonObjectRequestQueueSingleton getInstance(@NonNull final Context context)
     {
-        if (mInstance == null)
+        if (sInstance == null)
         {
-            mInstance = new JsonObjectRequestQueueSingleton(context);
+            sInstance = new JsonObjectRequestQueueSingleton(context);
         }
 
-        return mInstance;
+        return sInstance;
     }
 
     public void enqueueJSONObjectRequest(final String urlString, final JsonObjectRequestCallback callback)
@@ -136,5 +136,5 @@ public class JsonObjectRequestQueueSingleton
     }
 
     private final RequestQueue mRequestQueue;
-    private static JsonObjectRequestQueueSingleton mInstance;
+    private static JsonObjectRequestQueueSingleton sInstance;
 }
