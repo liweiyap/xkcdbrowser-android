@@ -6,8 +6,10 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
-public class DateFormatter
+public final class DateFormatter
 {
+    private DateFormatter(){}
+
     @NotNull
     public static String formatDate(final String day, final String month, final String year)
     {

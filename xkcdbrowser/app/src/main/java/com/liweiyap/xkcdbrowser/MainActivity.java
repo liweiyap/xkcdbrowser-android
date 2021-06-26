@@ -33,7 +33,7 @@ import java.util.Locale;
 
 public class MainActivity extends AppCompatActivity
 {
-    @SuppressLint("SetTextI18n")
+    @SuppressLint({"SetTextI18n", "SourceLockedOrientationActivity"})
     @Override
     protected void onCreate(Bundle savedInstanceState)
     {
@@ -111,7 +111,7 @@ public class MainActivity extends AppCompatActivity
                     return;
                 }
 
-                Integer inputInt = Integer.valueOf(inputString);
+                int inputInt = Integer.parseInt(inputString);
                 if ((inputInt > mNewestComicNum) || (inputInt < 1))
                 {
                     TextView comicSelectorEditTextHint = dialog.findViewById(R.id.comicSelectorEditTextHint);

@@ -3,8 +3,10 @@ package com.liweiyap.xkcdbrowser.ui;
 import android.view.View;
 import android.view.ViewGroup;
 
-public class ViewGroupAccessibilityManager
+public final class ViewGroupAccessibilityManager
 {
+    private ViewGroupAccessibilityManager(){}
+
     public static void setChildVisibility(final ViewGroup viewGroup, final int visibility) throws RuntimeException
     {
         if ( !((visibility == View.VISIBLE) ||

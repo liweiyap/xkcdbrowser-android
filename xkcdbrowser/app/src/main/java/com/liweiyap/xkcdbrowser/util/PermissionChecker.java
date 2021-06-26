@@ -6,8 +6,10 @@ import android.content.pm.PackageManager;
 import androidx.annotation.NonNull;
 import androidx.core.app.ActivityCompat;
 
-public class PermissionChecker
+public final class PermissionChecker
 {
+    private PermissionChecker(){}
+
     public static boolean hasPermissions(@NonNull final Context context, final String... permissions)
     {
         if (permissions != null)
